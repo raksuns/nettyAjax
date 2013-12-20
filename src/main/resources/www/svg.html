@@ -1,0 +1,143 @@
+<html>
+	<head>
+		<title>Netty Ajax Server</title>
+		<script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+		<script type="text/javascript" src="ui/js/jquery-ui-1.8.19.custom.min.js"></script>	
+		<script type="text/javascript" src="js/jquery.dateFormat-1.0.js"></script>
+		<script type="text/javascript" src="js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="js/jquery.metadata.js"></script>
+		<script type="text/javascript" src="js/Class-0.0.2.min.js"></script>
+		<script type="text/javascript" src="dynatree/jquery.dynatree.min.js"></script>
+		<script type="text/javascript" src="prettify/prettify.js"></script>
+		<script type="text/javascript" src="flot/jquery.flot.js"></script>
+		<script type="text/javascript" src="flot/jquery.flot.pie.js"></script>
+		<script type="text/javascript" src="flot/jquery.flot.resize.js"></script>
+		<script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+ 
+		<script type="text/javascript" src="svg/jquery.svg.js"></script>
+		<script type="text/javascript" src="svg/jquery.svgdom.js"></script>
+		<script type="text/javascript" src="svg/jquery.svganim.js"></script>
+		<script type="text/javascript" src="svg/jquery.svgfilter.js"></script>
+		
+		<!-- 
+		<script type="text/javascript" src="svg/raphael-min.js"></script>
+		<script type="text/javascript" src="svg/raphael-svg-import.js"></script>
+		-->
+		
+		
+		
+		
+		
+		
+		
+		
+		<link type="text/css" href="css/basic.css" rel="stylesheet" media="all"/>
+		<link type="text/css" href="ui/css/cupertino/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+		<link type="text/css" href="prettify/prettify.css" rel="stylesheet" />
+		<link type='text/css' href='dynatree/skin/ui.dynatree.css' rel='stylesheet'>	
+		<link type='text/css' href='svg/jquery.svg.css' rel='stylesheet'>
+			
+		<script type="text/javascript">
+		var svg = null;
+		var svg2 = null;
+		var g = null;
+		var root = null;
+		var scale = 1;
+			$(function(){
+				$('#displayChart').append('<div id="svgContainer" style="width:392;height:163;z-index:99999;" class="chartplaceholder"></div>');
+				
+				$('#svgContainer').svg();
+				$('#displayRaw').svg();
+				
+				
+				svg = $('#svgContainer').svg('get');
+				svg2 = $('#displayRaw').svg('get');
+				g = svg.group({id : 'groupPanel', transform: 'translate(0, 0)'});
+				
+				svg2.load('svg/savant.svg', {parent: g});
+				root = $('#displayRaw').children().first();
+				$('#svgContainer').width(root.width+5);
+				$('#svgContainer').height(root.height+5);
+				$('#svgContainer').append(root);
+
+				
+				
+				$('#svgContainer').draggable().resizable({
+					delay: 30,
+					stop: function(event, ui) {
+						var owidth = ui.originalSize.width;
+						var oheight = ui.originalSize.height;
+						var width = ui.size.width;
+						var height = ui.size.height;
+						var wchange = (width-owidth)/width;
+						var hchange = (height-oheight)/height;
+						console.info("wchange:%s    hchange:%s", wchange, hchange);
+						if(wchange<0) {
+							wchange = 1-(Math.abs(wchange));
+						} else {
+							wchange = 1+(Math.abs(wchange));
+						}
+						if(hchange<0) {
+							hchange = 1-(Math.abs(hchange));
+						} else {
+							hchange = 1+(Math.abs(hchange));
+						}
+						
+						
+						console.info("wchange:%s    hchange:%s", wchange, hchange);
+						root.width($('#svgContainer').width()-5);
+						root.height($('#svgContainer').height()-5);
+						g.setAttribute('transform','scale(' + wchange + ',' + hchange + ')');
+						
+					}
+				});
+				console.info("Adding MouseWheel Event Handler");
+				$('#svgContainer').bind('mousewheel', function(event, delta) {
+					console.info('MouseWheel Event:%s', delta);
+					if(delta > 0){
+						//zoom in
+						scale += 0.2;
+						g.setAttribute('transform','scale(' + scale + ')');
+						console.info('Transformed:[%s]', scale);
+						//$('#svgContainer').width($('#svgContainer').width()*scale);
+						//$('#svgContainer').height($('#svgContainer').height()*scale);
+			           }else{
+						//zoom out
+						scale -= 0.2;
+						if(scale <= 1){
+							//scale = 1;
+						}
+			           	g.setAttribute('transform','scale(' + scale + ')');
+						//$('#svgContainer').width($('#svgContainer').width()*scale);
+						//$('#svgContainer').height($('#svgContainer').height()*scale);
+
+			           	console.info('Transformed:[%s]', scale);
+			           }
+			          // $("html:not(:animated), body:not(:animated)").animate({scrollTop: 0}, 500);
+					return true;
+				});
+				   $('#groupPanel').bind('drag', function(event){  
+				        var translate = 'translate(' + Math.round(event.offsetX/30)*20 + ', '+ Math.round(event.offsetY/30)*20 + ')';  
+				        g.setAttribute('transform', translate + ' scale(' + scale + ')');  
+				    });  				
+			});
+			
+		
+		</script>			
+			
+			
+	</head>
+	<body id="main">
+		
+
+		
+		
+		<div id="display" class="ui-widget-content output-content" >
+			<h3 class="ui-widget-header">Output</h3>
+			<div id="displayRaw" style="display: none;"></div>
+			<div id="displayChart"></div>
+		</div>
+		
+
+	</body>
+</html>

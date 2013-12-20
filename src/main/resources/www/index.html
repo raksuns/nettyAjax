@@ -1,0 +1,143 @@
+<html>
+	<head>
+		<title>Netty Ajax Server</title>
+		
+		<!-- 
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		-->
+		<script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+		
+		<script type="text/javascript" src="ui/js/jquery-ui-1.8.19.custom.min.js"></script>	
+		<script type="text/javascript" src="js/jquery.dateFormat-1.0.js"></script>
+		<script type="text/javascript" src="js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="js/jquery.metadata.js"></script>
+		<script type="text/javascript" src="js/Class-0.0.2.min.js"></script>
+		<script type="text/javascript" src="dynatree/jquery.dynatree.min.js"></script>
+		<script type="text/javascript" src="prettify/prettify.js"></script>
+		<script type="text/javascript" src="flot/jquery.flot.js"></script>
+		<script type="text/javascript" src="flot/jquery.flot.pie.js"></script>
+		<script type="text/javascript" src="flot/jquery.flot.resize.js"></script>
+		<script type="text/javascript" src="svg/jquery.svg.js"></script>
+		
+		
+		<script type="text/javascript" src="js/ajaxpush.js"></script>
+		
+		
+		
+		
+		<link type="text/css" href="css/basic.css" rel="stylesheet" media="all"/>
+		<link type="text/css" href="ui/css/cupertino/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+		<link type="text/css" href="prettify/prettify.css" rel="stylesheet" />
+		<link type='text/css' href='dynatree/skin/ui.dynatree.css' rel='stylesheet'>	
+		<link type='text/css' href='svg/jquery.svg.css' rel='stylesheet'>
+			
+	</head>
+	<body id="main">
+		<h3>Netty Ajax Server</h3>
+		
+ 
+			<div id="metricTreeUl" class="mtree" > 
+				<div style="display: inline-block;width: 100%;" class="ui-widget-header"><span id="metricTreeToggleIcon" class="ui-icon ui-icon-circle-triangle-s ui-widget-header" style="display: inline-block;vertical-align:middle;" ></span><span style="display: inline-block;vertical-align:middle;" id="metricTreeToggler">Metrics Dictionary</span></div>
+				<div id="metricTreeLi">
+					<div id="metricTreeDiv"></div>
+					<button id="chartBtn">Chart It</button>
+					<button id="chartClearSelBtn">Clear Sel</button>	
+					<button id="chartRefreshBtn">Refresh</button>
+				</div>			
+			</div>
+ 
+		
+		
+		<div id="controls">
+			<div style="white-space: nowrap">
+			<button id="controlOptions" class="controlx">Options</button>
+			<button id="controlButton" class="controlx">Start</button>
+			<button id="clearButton" class="controlx">Clear</button>
+			<button id="outputFormat" class="controlx">Output:Charts</button>
+			<span class="controlx"><label for="responsecount">Responses:</label>
+			<input type="number" id="responsecount" class="counter" size="5"  width="7" value="0" disabled="disabled" ></input></span>									
+			<div class="controlx" style="font-weight: lighter;">Push Type:<div id="pushtypeDisplay" class="controlx"></div></div>
+			&nbsp;&nbsp;&nbsp;
+			<div id="longpollbusy" class="controlx busyindicator" ><img src="img/ajax-loader.gif" /></div>
+			</div>
+		</div>
+		
+		
+
+		
+		
+		<div id="display" class="ui-widget-content output-content" >
+			<h3 class="ui-widget-header">Output</h3>
+			<div id="displayRaw" style="display: none;"></div>
+			<div id="displayChart"></div>
+		</div>
+		
+		<div id="hidden-stuff" style="display:none;">
+		
+		<div class="err-msg">
+		    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		        <p>
+		            <span class="ui-icon ui-icon-alert"
+		            style="float: left; margin-right: .3em;"></span>
+		            <strong>Alert:</strong><span id="err-text"></span>
+		            <span style="float: right; " >&nbsp;&nbsp;<i>Click to Dismiss</i></span>
+		        </p>
+		    </div>
+		</div>
+		
+		
+		<div id="chart-dialog" title="Create new chart">
+			<label for="dlg-name">Chart Title</label>
+			<input type="text" name="name" id="dlg-name" class="text ui-widget-content ui-corner-all" />
+			<br></br>
+			<label for="dlg-type">Chart Type</label>
+			<select id="dlg-type">
+				<option selected="selected" >Line</option>
+				<option>Pie</option>
+				<option>Cross-Tab</option>
+			</select>
+			<br></br>
+			<label for="dlg-metrics-ids">Metric IDs</label>
+			<textarea id="dlg-metrics-ids" contenteditable="false" style="overflow:auto;" rows="3" cols="20" class="text ui-widget-content ui-corner-all"></textarea>
+			<br>
+			<label for="dlg-usedidkeys">Use ID Keys</label>
+			<input type="checkbox" id="dlg-usedidkeys" class="text ui-widget-content ui-corner-all" />
+			<br>
+			<button id="addChartButton">Add Chart</button>				
+			<button id="dlg-metrics-advanced">Advanced &gt;&gt;</button>			
+		</div>
+
+		<div id="script-dialog" title="Create New Script" onload="prettyPrint()">
+			<textarea id="scriptText" contenteditable="true" style="overflow:auto;" rows="20" cols="60" class="prettyprint lang-js">
+			</textarea>			
+			<br>
+			<button id="loadScriptButton">Load Script</button>				
+			<pre id="fmtSource" class="prettyprint lang-js" style="display: none;" >
+			</pre>					
+		</div>
+		
+		<div id="options-dialog" title="Netty Ajax Server Options">
+			<div id="ajaxconfig">
+			<select id="pushtype" class="configitem">
+				<option value='ws' id="polltype-ws">WebSockets</option>
+				<option value='lpoll' id="polltype-lpoll">Long Polling</option>
+				<option value='streamer' id="polltype-streamer" >Streaming HTTP</option>
+			</select>
+			<br/>
+			<label for="autoStart">Auto Start:</label>
+			<input type="checkbox" id="autoStart" title="Auto Start" class="configitem"  />						
+			<div id="longpoll-options" style="display:none;" class="displayForLongPoll" >
+				<label for="polltime" >Long Poll Timeout (ms):</label>
+				<input type="number" id="polltime" value="3000" size="6" class="configitem"  >
+				<br/>
+				<label for="delaytime">Long Poll Pause Time (ms):</label>
+				<input type="number" id="delaytime" value="1000" size="6" class="configitem"  >			
+			</div>
+		</div>
+		</div>
+	</div>
+		
+	
+		
+	</body>
+</html>
